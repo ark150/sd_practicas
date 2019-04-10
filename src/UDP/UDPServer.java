@@ -10,69 +10,77 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.SocketException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import Model.Peticion;
+import Model.Proceso;
+import algoritmosextra.RegionCritica;
 
 /**
  *
  * @author ark
  */
-public class UDPServer implements Runnable
-{
+public class UDPServer implements Runnable {
+    private boolean kill;
+    private RegionCritica region;
 
     public UDPServer()
     {
+        this.kill = false;
+        region = new RegionCritica();
+    }
 
+    public void kill() {
+        this.kill = true;
     }
 
     @Override
     public void run()
     {
-        int vectorProceso =0;
-        try{
-            // se crea el datagrama para recibir el mensaje
+        try
+        {
+            System.out.println("Servidor iniciado.");
+            // Obtener petición del proceso para la RC
             DatagramSocket aSocket = new DatagramSocket(6789);
-            //vector del objeto entrante
-            byte [] incoming = new byte[1024];
-            while(true)
+            byte[] buffer = new byte[1000];
+            while (!kill)
             {
-                // se recibe el  datagrama del objeto
-                DatagramPacket incomingPackte = new DatagramPacket(incoming, incoming.length);
-                aSocket.receive(incomingPackte);
-                // DatagramPacket request = new DatagramPacket(buffer, buffer.length);
-                // aSocket.receive(request);
-                // Se convierte el mensaje recibido a bytes
-                byte[] data = incomingPackte.getData();
-                //objetos para obtener el objeto en el mensaje
+                // Datagrama vacío
+                DatagramPacket request = new DatagramPacket(buffer, buffer.length);
+                // Se queda bloqueado hasta encontrar un mensaje entrante.
+                aSocket.receive(request);
+
+                // Hacer la petición a la región crítica
+                byte[] data = request.getData();
+
                 ByteArrayInputStream in = new ByteArrayInputStream(data);
                 ObjectInputStream is = new ObjectInputStream(in);
-                try {
-                    // Se obtiene el objeto del mensaje
-                    
+                Peticion p;
+
+                try
+                {
+                    p = (Peticion) is.readObject();
+
+                    if(p.getTipo() == Peticion.ASIGNA_RECURSO)
+                        region.asignaRecurso(p.getPeticion());
+                    else if(p.getTipo() == Peticion.VERIFICAR_DISPONIBILIDAD)
+                    {
+                        int value = (region.isInUse()) ? 1 : 0;
+                        byte[] returnvalue = new byte[value];
+
+                        DatagramPacket reply = new DatagramPacket(
+                            returnvalue, request.getLength(),
+                            request.getAddress(), request.getPort());
+
+                        // Se envía la respuesta desde la región crítica
+                        // de vuelta al proceso.
+                        aSocket.send(reply);
+                    }
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
                 }
-                // catch (ClassNotFoundException ex) {
-                //     Logger.getLogger(UDPServer.class.getName()).log(Level.SEVERE, null, ex);
-                // }
-                catch (Exception ex) {  }
-                // Envío de la confirmación de recepción del mensaje
-                InetAddress ipAddress = incomingPackte.getAddress();
-                int port = incomingPackte.getPort();
-                String reply = "Thank you for the message";
-                byte[] replyBytea = reply.getBytes();
-                DatagramPacket replyPacket = 
-                    new DatagramPacket(replyBytea, replyBytea.length, ipAddress, port);
-                aSocket.send(replyPacket);
-                
-                // DatagramPacket reply = new DatagramPacket(request.getData(),
-                //         request.getLength(),request.getAddress(),request.getPort());
-                // aSocket.send(reply);
             }
-        } catch(SocketException e) { System.out.println("Socekt: "+e.getMessage());
-        } catch (IOException ex) {
-            Logger.getLogger(UDPServer.class.getName()).
-            log(Level.SEVERE, null, ex);
         }
+        catch (SocketException e) {System.out.println("Socket: " + e.getMessage()); }
+        catch (IOException e) {System.out.println("IO: " + e.getMessage());}
     }
 }

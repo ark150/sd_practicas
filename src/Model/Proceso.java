@@ -12,50 +12,87 @@ import UDP.UDPServer;
  * 
  * @author BaezCrdrm
  */
-public class Proceso {
+public class Proceso
+{
     private String ip, nombre;
     private int id, puerto;
     private UDPServer udps;
     private Thread server;
+    private boolean coordinador;
 
     /**
      * Crea un nuevo proceso que será utilizado en el algoritmo
      */
-    public Proceso(String ip, int puerto, int id, String nombre) {
-        this.ip = ip;
+    public Proceso(String ip, int puerto, int id, String nombre)
+    {
+        initialize(ip, puerto, id, nombre, false);
+    }
+
+    public Proceso(String ip, int puerto, int id, String nombre, boolean coordinador)
+    {
+        initialize(ip, puerto, id, nombre, coordinador);
+    }
+
+    private void initialize(String ip, int puerto, int id, String nombre, boolean coordinador)
+    {
+		this.ip = ip;
         this.puerto = puerto;
         this.id = id;
         this.nombre = nombre;
-
-        this.udps = new UDPServer();
-        this.server = new Thread(this.udps);
-    }
+        this.coordinador = coordinador;
+	}
 
     public void serve()
     {
-        this.server.start();
+        if(this.coordinador)
+        {
+            this.udps = new UDPServer();
+            this.server = new Thread(this.udps);
+            this.server.start();
+        }
     }
+
+    public void setCoodinador(boolean coordinador)
+    {
+        this.coordinador = coordinador;
+
+        // Detiene el servidor del proceso
+        // si es que este proceso deja
+        // de ser el coordinador.
+        if(coordinador == false)
+        {
+            try {
+                this.udps.kill();
+                this.server.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (Exception ex) { }
+        } else serve();
+    }
+
+    /**
+     * Verifica si el proceso tiene el rol
+     * de coordinador. 
+     * @return Verdadero si el proceso es coordinador
+     */
+    public boolean isCoordinador() { return this.coordinador; }
 
     /**
      * @return the ip
      */
-    public String getIp() {
-        return ip;
-    }
+    public String getIp() { return ip; }
 
     /**
      * @return the puerto
      */
-    public int getPuerto() {
-        return puerto;
-    }
+    public int getPuerto() { return puerto; }
 
     /**
      * @return the id
      */
-    public int getId() {
-        return id;
-    }
+    public int getId() { return id; }
+
+    public String getNombre() { return this.nombre; }
 
     /**
      * Verifica si existen procesos en espera y evalúa si es que pueden ser

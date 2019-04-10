@@ -7,6 +7,7 @@ import java.util.concurrent.Callable;
 
 import Model.Proceso;
 import UDP.UDPServer;
+import UDP.UDPServerRegion;
 
 /**
  * RegionCritica
@@ -15,7 +16,7 @@ public class RegionCritica extends Proceso
 {
     private Recurso recurso;
     private boolean change;
-    private UDPServer udps;
+    private UDPServerRegion udps;
     private Thread server;
     private boolean kill;
     private int segundos;
@@ -45,9 +46,9 @@ public class RegionCritica extends Proceso
     private void initialize() {
         recurso = new Recurso();
         change = false;
-        this.udps = new UDPServer();
-        this.server = new Thread(udps);
-        this.server.start();
+        // this.udps = new UDPServerRegion();
+        // this.server = new Thread(udps);
+        // this.server.start();
         this.kill = false;
     }
 
