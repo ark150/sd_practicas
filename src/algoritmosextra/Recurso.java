@@ -12,6 +12,7 @@ public class Recurso extends Frame implements ActionListener
 {
     private String title;
     private Label lblTitle;
+    public static Color COLOR_ORIGINAL = Color.BLACK;
 
     public Recurso()
     {
@@ -22,7 +23,7 @@ public class Recurso extends Frame implements ActionListener
         lblTitle.setAlignment(Label.CENTER);
         add(lblTitle);
         setLayout(new FlowLayout());
-        setBackground(Color.BLUE);
+        setBackground(Recurso.COLOR_ORIGINAL);
 
         setVisible(true);
     }
