@@ -22,11 +22,21 @@ import algoritmosextra.RegionCritica;
 public class UDPServer implements Runnable {
     private boolean kill;
     private RegionCritica region;
+    private int puerto;
+    public static int PUERTO_DEFAULT = 6789;
 
     public UDPServer()
     {
         this.kill = false;
         region = new RegionCritica();
+        this.puerto = UDPServer.PUERTO_DEFAULT;
+    }
+
+    public UDPServer(int puerto)
+    {
+        this.kill = false;
+        region = new RegionCritica();
+        this.puerto = puerto;
     }
 
     public void kill() {
@@ -38,9 +48,9 @@ public class UDPServer implements Runnable {
     {
         try
         {
-            System.out.println("Servidor iniciado.");
+            System.out.println("Servidor en " + Proceso.getMachineIp() + " iniciado.");
             // Obtener petición del proceso para la RC
-            DatagramSocket aSocket = new DatagramSocket(6789);
+            DatagramSocket aSocket = new DatagramSocket(puerto);
             byte[] buffer = new byte[1000];
             while (!kill)
             {
@@ -65,7 +75,8 @@ public class UDPServer implements Runnable {
                     else if(p.getTipo() == Peticion.VERIFICAR_DISPONIBILIDAD)
                     {
                         int value = (region.isInUse()) ? 1 : 0;
-                        byte[] returnvalue = new byte[value];
+                        byte[] returnvalue = new byte[1000];
+                        returnvalue[0] = (byte)value;
 
                         DatagramPacket reply = new DatagramPacket(
                             returnvalue, request.getLength(),

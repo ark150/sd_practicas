@@ -27,6 +27,9 @@ public class AlgoritmosExtra {
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         Proceso coordinador = new Proceso("192.168.100.5", 102, 0, "Coordinador", true);
         coordinador.serve();
+
+        Proceso p1 = new Proceso("192.168.100.5", 103, 1, "P1", coordinador.getIp(), coordinador.getPuerto());
+        p1.hacerPeticionRecurso(coordinador, Color.GREEN);
     }
     
 }

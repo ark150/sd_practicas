@@ -1,13 +1,14 @@
 package Model;
 
 import java.awt.Color;
+import java.io.Serializable;
 
 /**
  * Peticion
  */
-public class Peticion {
-    Color peticion;
-    int tipo;
+public class Peticion implements Serializable {
+    private Color peticion;
+    private int tipo;
     public static int VERIFICAR_DISPONIBILIDAD = -1;
     public static int ASIGNA_RECURSO = 1;
 
