@@ -21,6 +21,7 @@ public class Proceso {
     private UDPClient udpc;
     private Thread server;
     private boolean coordinador;
+    public List<Peticion> colaEspera;
 
     /**
      * Crea un nuevo proceso que será utilizado en el algoritmo
@@ -46,6 +47,7 @@ public class Proceso {
         this.id = id;
         this.nombre = nombre;
         this.coordinador = coordinador;
+        this.colaEspera = new ArrayList<Peticion>();
     }
 
     public void serve() {
@@ -122,17 +124,24 @@ public class Proceso {
             tr.start();
             try {
                 tr.join();
-                if(udpc.isDisponible())
+                if(udpc.isDisponible() && this.colaEspera.isEmpty())
                 {
                     udpc.setPeticion(new Peticion(uso, Peticion.ASIGNA_RECURSO));
                     tr = new Thread(udpc);
                     tr.start();
 
-                    try {
-                        tr.join();
-                    } catch (Exception e) {
+                    // try {
+                    //     tr.join();
+                    // } catch (Exception e) {
                         
-                    }
+                    // }
+                }
+                else if(!coordinador.colaEspera.isEmpty())
+                {
+                    coordinador.atiendeEspera(coordinador);
+                }
+                else if(!udpc.isDisponible()){ // Verificar ya que sí se agrega y después no se realiza ninguna acción
+                    coordinador.colaEspera.add(new Peticion(uso, Peticion.ASIGNA_RECURSO));
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -140,6 +149,12 @@ public class Proceso {
         } else 
             System.out.println("El proceso " + coordinador.getClass().getName() + 
                 " debe estar instanciado como coordinador");
+    }
+
+    private void atiendeEspera(Proceso coordinador)
+    {
+        coordinador.hacerPeticionRecurso(coordinador, this.colaEspera.get(0).getPeticion());
+        coordinador.colaEspera.remove(0);
     }
 
     public static String getMachineIp()

@@ -29,7 +29,7 @@ public class RegionCritica extends Proceso
     public RegionCritica() {
         super(getMachineIp(), 102, 0, "RegionCritica");
         initialize();
-        segundos = 4;
+        segundos = 30;
     }
 
     /**
@@ -82,6 +82,11 @@ public class RegionCritica extends Proceso
         // }
     }
 
+    private void notificarSalida()
+    {
+        
+    }
+
     public boolean isInUse()
     {
         return this.change;
@@ -91,47 +96,4 @@ public class RegionCritica extends Proceso
     {
         this.kill = true;
     }
-
-    // @Override
-    // public void run() {
-    //     while(!kill)
-    //     {
-    //         if(change == true)
-    //         {
-    //             change = false;
-    //             // Simula el uso de recursos
-    //             System.out.println("Usando recursos");
-    //             int segundos = 4;
-    //             try {
-    //                 Thread.sleep(segundos * 1000);
-    //             } catch (InterruptedException e) {
-    //                 e.printStackTrace();
-    //             }
-
-    //             recurso.setBackground(Color.BLACK);
-    //         }
-    //     }
-    // }
-
-    // @Override
-    // public Boolean call() throws Exception
-    // {
-    //     if(change == true)
-    //     {  
-    //         // Simula el uso de recursos
-    //         System.out.println("Usando recursos");
-    //         int segundos = 4;
-    //         try
-    //         {
-    //             Thread.sleep(segundos * 1000);
-    //             change = false;
-    //             recurso.setBackground(Color.BLACK);
-    //         } catch (InterruptedException e) {
-    //             e.printStackTrace();
-    //             change = true;
-    //         }
-    //     }
-    //     return change;
-    // }
-    
 }

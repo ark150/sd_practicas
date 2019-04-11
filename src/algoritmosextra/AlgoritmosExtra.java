@@ -28,8 +28,28 @@ public class AlgoritmosExtra {
         Proceso coordinador = new Proceso("192.168.100.5", 102, 0, "Coordinador", true);
         coordinador.serve();
 
-        Proceso p1 = new Proceso("192.168.100.5", 103, 1, "P1", coordinador.getIp(), coordinador.getPuerto());
-        p1.hacerPeticionRecurso(coordinador, Color.GREEN);
+        Thread tr1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Proceso p1 = new Proceso("192.168.100.5", 103, 1, "P1", coordinador.getIp(), coordinador.getPuerto());
+                p1.hacerPeticionRecurso(coordinador, Color.GREEN);
+            }
+        });
+        tr1.start();
+
+        Thread tr2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.currentThread().sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                Proceso p2 = new Proceso("192.168.100.5", 104, 2, "P2", coordinador.getIp(), coordinador.getPuerto());
+                p2.hacerPeticionRecurso(coordinador, Color.RED);
+            }
+        });
+        tr2.start();
     }
     
 }
