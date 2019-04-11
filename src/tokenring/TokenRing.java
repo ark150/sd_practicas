@@ -35,7 +35,7 @@ public class TokenRing {
         List<Proceso> nodos = new ArrayList<Proceso>();
         RegionCritica rc = new RegionCritica("192.168.100.5", 102, 0, "Region critica");
 
-        nodos.add(new Proceso("192.168.100.5", 103, 1, "P1"));
+        nodos.add(new Proceso("192.168.100.5", 103, 1, "P1", true));
         nodos.add(new Proceso("192.168.100.5", 104, 2, "P2"));
         nodos.add(new Proceso("192.168.100.5", 105, 3, "P3"));
 

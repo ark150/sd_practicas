@@ -16,7 +16,7 @@ import Model.Proceso;
 import tokenring.RegionCritica;
 
 /**
- *
+ * Servidor UDP que funciona sobre los nodos.
  * @author ark
  */
 public class UDPServer implements Runnable {
@@ -53,6 +53,8 @@ public class UDPServer implements Runnable {
         return this.token;
     }
 
+    public int getPuerto() { return this.puerto; }
+
     @Override
     public void run()
     {
@@ -70,14 +72,15 @@ public class UDPServer implements Runnable {
 
                 token = request.getData().toString();
 
-                String resp = "Se recibió token " + token + " desde " 
-                    + request.getAddress() + ":" + request.getPort();
-                byte[] bresp = resp.getBytes();
+                // String resp = "Se recibió token " + token + " desde " 
+                // //     + request.getAddress() + ":" + request.getPort();
+                // String resp = "true";
+                // byte[] bresp = resp.getBytes();
 
                 // Datagrama proveniente de request.
                 // Se construye la respuesta.
                 DatagramPacket reply = new DatagramPacket(
-                    bresp, request.getLength(),
+                    request.getData(), request.getLength(),
                     request.getAddress(), request.getPort());
 
                 // Se envía la respuesta.

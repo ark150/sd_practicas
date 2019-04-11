@@ -22,6 +22,10 @@ public class UDPClient implements Runnable
     private Peticion peticion;
     private boolean response;
 
+    /**
+     * Constructor
+     * @param ip Dirección IP del servidor al cual se conectará
+     */
     public UDPClient(String ip) 
     {
         initialize(ip, UDPServer.PUERTO_DEFAULT);
@@ -67,7 +71,12 @@ public class UDPClient implements Runnable
                 byte[] buffer = new byte[1000];
                 DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
                 aSocket.receive(reply);
-                // System.out.println("Reply: " + new String(reply.getData()));
+                String a = new String(reply.getData()).trim();
+                System.out.println("Reply: " + a);
+                if(!a.equals("default"))
+                {
+                    this.response = true;
+                } else this.response = false;
                 aSocket.close(); 
             }
             catch (SocketException e){System.out.println("Socket: " + e.getMessage()); }

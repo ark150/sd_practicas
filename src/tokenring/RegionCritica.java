@@ -41,7 +41,7 @@ public class RegionCritica extends Proceso
     {
         super(ip, puerto, id, nombre);
         initialize();
-        segundos = 30;
+        segundos = 4;
     }
 
     private void initialize() {

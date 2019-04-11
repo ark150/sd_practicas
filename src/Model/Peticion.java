@@ -14,11 +14,23 @@ public class Peticion implements Serializable {
     public static int VERIFICAR_DISPONIBILIDAD = -1;
     public static int ASIGNA_RECURSO = 1;
 
+    /**
+     * Crea una nueva petición
+     * @param peticion
+     * @param tipo
+     * @param proceso Proceso al cual se conecta
+     */
     public Peticion(Color peticion, int tipo, Proceso proceso)
     {
         this.peticion = peticion;
         this.tipo = tipo;
         this.padre = proceso;
+    }
+
+    public Peticion(Proceso proceso, String token)
+    {
+        this.padre = proceso;
+        this.token = token;
     }
 
     public Color getPeticion() { return this.peticion; }
