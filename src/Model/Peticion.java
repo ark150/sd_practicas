@@ -10,6 +10,7 @@ public class Peticion implements Serializable {
     private Color peticion;
     private int tipo;
     private Proceso padre;
+    private String token;
     public static int VERIFICAR_DISPONIBILIDAD = -1;
     public static int ASIGNA_RECURSO = 1;
 
@@ -23,4 +24,5 @@ public class Peticion implements Serializable {
     public Color getPeticion() { return this.peticion; }
     public int getTipo() { return this.tipo; }
     public Proceso getProcesoPadre() { return this.padre; }
+    public String getToken() { return this.token; }
 }

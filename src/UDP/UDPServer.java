@@ -23,6 +23,7 @@ public class UDPServer implements Runnable {
     private boolean kill;
     private RegionCritica region;
     private int puerto;
+    private String token;
     public static int PUERTO_DEFAULT = 6789;
 
     public UDPServer()
@@ -43,6 +44,11 @@ public class UDPServer implements Runnable {
         this.kill = true;
     }
 
+    public String getToken()
+    {
+        return this.token;
+    }
+
     @Override
     public void run()
     {
@@ -57,36 +63,20 @@ public class UDPServer implements Runnable {
                 // Se queda bloqueado hasta encontrar un mensaje entrante.
                 aSocket.receive(request);
 
-                // Hacer la petición a la región crítica
-                byte[] data = request.getData();
+                token = request.getData().toString();
 
-                ByteArrayInputStream in = new ByteArrayInputStream(data);
-                ObjectInputStream is = new ObjectInputStream(in);
-                Peticion p;
+                String resp = "Se recibió token " + token + " desde " 
+                    + request.getAddress() + ":" + request.getPort();
+                byte[] bresp = resp.getBytes();
 
-                try
-                {
-                    p = (Peticion) is.readObject();
+                // Datagrama proveniente de request.
+                // Se construye la respuesta.
+                DatagramPacket reply = new DatagramPacket(
+                    bresp, request.getLength(),
+                    request.getAddress(), request.getPort());
 
-                    if(p.getTipo() == Peticion.ASIGNA_RECURSO)
-                        region.asignaRecurso(p.getPeticion());
-                    else if(p.getTipo() == Peticion.VERIFICAR_DISPONIBILIDAD)
-                    {
-                        int value = (region.isInUse()) ? 1 : 0;
-                        byte[] returnvalue = new byte[1000];
-                        returnvalue[0] = (byte)value;
-
-                        DatagramPacket reply = new DatagramPacket(
-                            returnvalue, request.getLength(),
-                            request.getAddress(), request.getPort());
-
-                        // Se envía la respuesta desde la región crítica
-                        // de vuelta al proceso.
-                        aSocket.send(reply);
-                    }
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
+                // Se envía la respuesta.
+                aSocket.send(reply);
             }
         }
         catch (SocketException e) {System.out.println("Socket: " + e.getMessage()); }
