@@ -8,8 +8,8 @@ import Model.Proceso;
 /**
  * Anillo
  */
-public class Anillo {
-
+public class Anillo
+{
     private List<Proceso> procesos;
 
     public Anillo(List<Proceso> procesosDefinidos)
@@ -26,5 +26,12 @@ public class Anillo {
             
             this.procesos.add(new Proceso(procesosDefinidos.get(i), vecino));
         }
+
+        int i = 0;
+    }
+
+    public void start()
+    {
+        int i = 0;
     }
 }

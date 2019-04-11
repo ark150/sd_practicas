@@ -21,23 +21,27 @@ import tokenring.RegionCritica;
  */
 public class UDPServer implements Runnable {
     private boolean kill;
-    private RegionCritica region;
     private int puerto;
-    private String token;
+    private String token, ip;
     public static int PUERTO_DEFAULT = 6789;
 
     public UDPServer()
     {
         this.kill = false;
-        region = new RegionCritica();
         this.puerto = UDPServer.PUERTO_DEFAULT;
+        this.ip = "";
     }
 
     public UDPServer(int puerto)
     {
         this.kill = false;
-        region = new RegionCritica();
         this.puerto = puerto;
+        this.ip = "";
+    }
+
+    public void setInfo(String ip)
+    {
+        this.ip = ip;
     }
 
     public void kill() {
@@ -54,6 +58,7 @@ public class UDPServer implements Runnable {
     {
         try
         {
+            System.out.println("Servidor inicializado en " + ip + ":" + puerto);
             DatagramSocket aSocket = new DatagramSocket(puerto);
             byte[] buffer = new byte[1000];
             while (!kill)
@@ -82,4 +87,5 @@ public class UDPServer implements Runnable {
         catch (SocketException e) {System.out.println("Socket: " + e.getMessage()); }
         catch (IOException e) {System.out.println("IO: " + e.getMessage());}
     }
+
 }

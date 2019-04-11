@@ -18,6 +18,7 @@ public class Proceso
     private Proceso vecino;
     private UDPServer udps;
     private UDPClient udpc;
+    private Thread server;
     private boolean generador;
     private String token;
 
@@ -75,6 +76,16 @@ public class Proceso
             System.out.println("Agrega los valores correctos al parámetro");
             throw new NullPointerException();
         }
+
+        serve();
+    }
+
+    private void serve()
+    {
+        udps = new UDPServer(this.puerto);
+        udps.setInfo(this.ip);
+        server = new Thread(udps);
+        server.start();
     }
 
     /**
