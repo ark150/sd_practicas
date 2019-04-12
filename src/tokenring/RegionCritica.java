@@ -37,6 +37,13 @@ public class RegionCritica extends Proceso
         segundos = espera;
     }
 
+    public RegionCritica(String ip, int puerto, int id, String nombre)
+    {
+        super(ip, puerto, id, nombre);
+        initialize();
+        segundos = 4;
+    }
+
     private void initialize() {
         recurso = new Recurso();
         change = false;

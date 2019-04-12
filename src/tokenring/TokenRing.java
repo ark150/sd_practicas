@@ -5,6 +5,11 @@
  */
 package tokenring;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import Model.Proceso;
+
 /**
  *
  * @author Samuel
@@ -26,6 +31,15 @@ public class TokenRing {
          * 
          * Cada proceso tiene un servidor y cliente que se comunica con su vecino
          */
+
+        List<Proceso> nodos = new ArrayList<Proceso>();
+        RegionCritica rc = new RegionCritica("192.168.100.5", 102, 0, "Region critica");
+
+        nodos.add(new Proceso("192.168.100.5", 103, 1, "P1", true));
+        nodos.add(new Proceso("192.168.100.5", 104, 2, "P2"));
+        nodos.add(new Proceso("192.168.100.5", 105, 3, "P3"));
+
+        Anillo anillo = new Anillo(nodos);
     }
     
 }

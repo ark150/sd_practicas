@@ -7,27 +7,31 @@ import java.util.Random;
 
 import UDP.UDPClient;
 import UDP.UDPServer;
+import java.awt.Color;
+import java.io.Serializable;
 
 /**
  * Proceso
  */
-public class Proceso
-{
+public class Proceso implements Serializable {
     private String ip, nombre;
     private int id, puerto;
     private Proceso vecino;
     private UDPServer udps;
     private UDPClient udpc;
+    private Thread server, tokenRunner;
     private boolean generador;
     private String token;
+    private static int espera = 5;
+    private Color color;
 
     /**
      * Constructor de definición de proceso
-     * @param ip Dirección IP del proceso
+     * 
+     * @param ip     Dirección IP del proceso
      * @param puerto Puerto del prceso
-     * @param id Identificador dado al proceso
-     * @param nombre Nombre no único por el cual se le pueda
-     * llamar al proceso
+     * @param id     Identificador dado al proceso
+     * @param nombre Nombre no único por el cual se le pueda llamar al proceso
      */
     public Proceso(String ip, int puerto, int id, String nombre) {
         initialize(ip, puerto, id, nombre, false);
@@ -35,15 +39,30 @@ public class Proceso
 
     /**
      * Constructor de definición de proceso
-     * @param ip Dirección IP del proceso
+     * 
+     * @param ip     Dirección IP del proceso
      * @param puerto Puerto del prceso
-     * @param id Identificador dado al proceso
-     * @param nombre Nombre no único por el cual se le pueda
-     * llamar al proceso
+     * @param id     Identificador dado al proceso
+     * @param nombre Nombre no único por el cual se le pueda llamar al proceso
+     */
+    public Proceso(String ip, int puerto, int id, Color color, String nombre) {
+        initialize(ip, puerto, id, nombre, false);
+        this.color = color;
+    }
+
+    /**
+     * Constructor de definición de proceso
+     * 
+     * @param ip        Dirección IP del proceso
+     * @param puerto    Puerto del prceso
+     * @param id        Identificador dado al proceso
+     * @param nombre    Nombre no único por el cual se le pueda llamar al proceso
      * @param generador Ve si el proceso es generador de token
      */
     public Proceso(String ip, int puerto, int id, String nombre, boolean generador) {
         initialize(ip, puerto, id, nombre, generador);
+        if (generador)
+            generarToken();
     }
 
     private void initialize(String ip, int puerto, int id, String nombre, boolean generador) {
@@ -57,15 +76,16 @@ public class Proceso
 
     /**
      * Instancia un proceso a partir de un proceso definido.
+     * 
      * @param proceso
      */
-    public Proceso(Proceso proceso, Proceso vecino)
-    {
+    public Proceso(Proceso proceso, Proceso vecino) {
         try {
             this.id = proceso.getId();
             this.ip = proceso.getIp();
             this.puerto = proceso.getPuerto();
             this.vecino = vecino;
+            this.token = proceso.getToken();
 
             this.udps = new UDPServer();
             // this.server = new Thread(this.udps);
@@ -75,6 +95,52 @@ public class Proceso
             System.out.println("Agrega los valores correctos al parámetro");
             throw new NullPointerException();
         }
+
+        serve();
+        this.tokenRunner = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                boolean val = false;
+                do {
+                    Peticion p = new Peticion(vecino, token, Peticion.VERIFICAR_DISPONIBILIDAD);
+                    val = generaPeticion(p);
+
+                    // Si es verdadero, permite interactuar
+                    // con el proceso.
+                    if (val)
+                        System.out.println("Permitido");
+                    else
+                        System.out.println("No");
+
+                    try {
+                        Thread.currentThread().sleep(espera * 1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                } while(!val);
+
+                // Se envía el token al vecino mediante
+                // una petición
+                
+                try {
+                    Thread.currentThread().sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        this.tokenRunner.start();
+    }
+
+    private void serve() {
+        // Servidor
+        udps = new UDPServer(this.puerto);
+        udps.setInfo(this.ip);
+        server = new Thread(udps);
+        server.start();
+
+        // Cliente
+        udpc = new UDPClient(vecino.getIp(), vecino.getPuerto());
     }
 
     /**
@@ -111,7 +177,22 @@ public class Proceso
     {
         byte[] array = new byte[3];
         new Random().nextBytes(array);
-        this.token = new String(array, Charset.forName("UTF-8"));
+        String g = new String(array, Charset.forName("UTF-8"));
+        this.token = "hola";
+    }
+
+    public boolean generaPeticion(Peticion peticion)
+    {
+        udpc.setPeticion(peticion);
+        Thread cliente = new Thread(udpc);
+        cliente.start();
+        try {
+            cliente.join();
+            return udpc.isDisponible();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public static String getMachineIp()
