@@ -70,7 +70,29 @@ public class UDPServer implements Runnable {
                 // Se queda bloqueado hasta encontrar un mensaje entrante.
                 aSocket.receive(request);
 
-                token = request.getData().toString();
+                byte[] data = request.getData();
+
+                ByteArrayInputStream in = new ByteArrayInputStream(data);
+                ObjectInputStream is = new ObjectInputStream(in);
+                Peticion p;
+                byte[] response = null;
+                try
+                {
+                    p = (Peticion) is.readObject();
+                    if(p.getTipo() == Peticion.VERIFICAR_DISPONIBILIDAD)
+                    {
+                        String val = (p.getToken().equals("")) ? "false" : "true";
+                        // Hacer lo que ya se hacía
+                        response = val.getBytes();
+                    } else if(p.getTipo() == Peticion.ENVIAR_TOKEN)
+                    {
+                        // Proceso recibe Token
+                        token = p.getToken();
+                    }
+                    else response = new byte[1000];
+                } catch(Exception ex) { response = new byte[1000]; }
+
+                //token = request.getData().toString();
 
                 // String resp = "Se recibió token " + token + " desde " 
                 // //     + request.getAddress() + ":" + request.getPort();
@@ -80,7 +102,7 @@ public class UDPServer implements Runnable {
                 // Datagrama proveniente de request.
                 // Se construye la respuesta.
                 DatagramPacket reply = new DatagramPacket(
-                    request.getData(), request.getLength(),
+                    response, response.length,
                     request.getAddress(), request.getPort());
 
                 // Se envía la respuesta.

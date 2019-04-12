@@ -8,11 +8,12 @@ import java.util.Random;
 import UDP.UDPClient;
 import UDP.UDPServer;
 import java.awt.Color;
+import java.io.Serializable;
 
 /**
  * Proceso
  */
-public class Proceso {
+public class Proceso implements Serializable {
     private String ip, nombre;
     private int id, puerto;
     private Proceso vecino;
@@ -39,6 +40,19 @@ public class Proceso {
     /**
      * Constructor de definición de proceso
      * 
+     * @param ip     Dirección IP del proceso
+     * @param puerto Puerto del prceso
+     * @param id     Identificador dado al proceso
+     * @param nombre Nombre no único por el cual se le pueda llamar al proceso
+     */
+    public Proceso(String ip, int puerto, int id, Color color, String nombre) {
+        initialize(ip, puerto, id, nombre, false);
+        this.color = color;
+    }
+
+    /**
+     * Constructor de definición de proceso
+     * 
      * @param ip        Dirección IP del proceso
      * @param puerto    Puerto del prceso
      * @param id        Identificador dado al proceso
@@ -57,7 +71,7 @@ public class Proceso {
         this.id = id;
         this.nombre = nombre;
         this.generador = generador;
-        this.token = "default";
+        this.token = "";
     }
 
     /**
@@ -88,8 +102,11 @@ public class Proceso {
             public void run() {
                 boolean val = false;
                 do {
-                    Peticion p = new Peticion(vecino, token);
+                    Peticion p = new Peticion(vecino, token, Peticion.VERIFICAR_DISPONIBILIDAD);
                     val = generaPeticion(p);
+
+                    // Si es verdadero, permite interactuar
+                    // con el proceso.
                     if (val)
                         System.out.println("Permitido");
                     else
@@ -101,9 +118,12 @@ public class Proceso {
                         e.printStackTrace();
                     }
                 } while(!val);
+
+                // Se envía el token al vecino mediante
+                // una petición
                 
                 try {
-                    Thread.currentThread().sleep(500);
+                    Thread.currentThread().sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
